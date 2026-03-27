@@ -107,28 +107,25 @@ INSERT INTO CatProducto (nombre_Producto, existencias, precio)
 SELECT ProductName, UnitsInStock, UnitPrice FROM NORTHWND.dbo.Products;
 GO
 
-CREATE PROC usp_agregar_venta
-@id_cliente NCHAR(5),
+CREATE OR ALTER PROC usp_agregar_venta
+    @id_cliente NCHAR(5),
     @id_producto INT,
     @cantidad_vendida INT
 AS
 BEGIN
+    SET NOCOUNT ON;
     BEGIN TRY
         BEGIN TRANSACTION
             -- Validación de Cliente
             IF NOT EXISTS (SELECT 1 FROM CatCliente WHERE id_cliente = @id_cliente)
             BEGIN
-                PRINT 'El cliente no existe.';
-                ROLLBACK;
-                RETURN;
+                THROW 50001, 'El cliente no existe.', 1;
             END
 
             -- Validación de Producto
             IF NOT EXISTS (SELECT 1 FROM CatProducto WHERE id_producto = @id_producto)
             BEGIN
-                PRINT 'El producto no existe.';
-                ROLLBACK;
-                RETURN;
+                THROW 50002, 'El producto no existe.', 1;
             END
 
             -- Obtención de datos y validación de existencia
@@ -139,41 +136,42 @@ BEGIN
 
             IF @cantidad_vendida > @stock_disponible
             BEGIN
-                PRINT 'Existencias insuficientes.';
-                ROLLBACK;
-                RETURN;
+                THROW 50003, 'Existencias insuficientes.', 1;
             END
+
             -- Agregar la Venta
             INSERT INTO TblVenta (fecha, id_cliente)
             VALUES (GETDATE(), @id_cliente);
+
+            -- Capturar el ID de la venta recién generada
+            DECLARE @id_nueva_venta INT = SCOPE_IDENTITY();
 
             -- Actualizacion de existencias
             UPDATE CatProducto
             SET existencias = existencias - @cantidad_vendida
             WHERE id_producto = @id_producto;
 
-            -- Capturar el ID de la venta recién generada
-            DECLARE @id_nueva_venta INT = SCOPE_IDENTITY();
-
             -- Generar los detalles de la venta 
             INSERT INTO TblDetalleVenta (id_venta, id_producto, precio_venta, cantidad_vendida)
             VALUES (@id_nueva_venta, @id_producto, @precio_actual, @cantidad_vendida);
 
         COMMIT;
-        PRINT 'Venta registrada.';
-
+        PRINT 'Venta registrada exitosamente.';
     END TRY
     BEGIN CATCH
+        -- El único ROLLBACK necesario
         IF @@TRANCOUNT > 0
         BEGIN
             ROLLBACK;
         END
+        
         PRINT 'Ocurrio un error al registrar la venta';
         PRINT 'ERROR: ' + ERROR_MESSAGE();
+        
+        THROW; 
     END CATCH
 END;
 GO
-
 
 SELECT * FROM catProducto;
 SELECT * FROM catCliente;
@@ -182,4 +180,4 @@ SELECT * FROM TblDetalleVenta;
 EXEC usp_agregar_venta 
     @id_cliente = 'OCEAN',
     @id_producto = 78,
-    @cantidad_vendida = 5;
+    @cantidad_vendida = 500;

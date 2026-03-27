@@ -36,7 +36,7 @@ Armamos el procedure usando transacciones y un bloque `TRY...CATCH`. Si algo fal
 **Así funciona la lógica paso a paso:**
 1. **Inicio de Transacción:** Abrimos la transacción para proteger los datos.
 2. **Fecha de la Venta:** Usamos `GETDATE()` para registrar la hora exacta al insertar en `TblVenta`.
-3. **Validar Cliente:** Revisamos si el cliente existe. Si no, abortamos la operación.
+3. **Validar Cliente:** Revisamos si el cliente existe. Si no, abortamos la operacion con throw.
 4. **Validar Producto y Stock:** Checamos que el producto exista y que la `cantidad_vendida` no sea mayor a la `existencia` actual.
 5. **Guardar Detalle:** Si todo está en orden, insertamos el registro en `TblDetalleVenta`.
 6. **Descontar Inventario:** Le restamos la cantidad vendida al stock de `CatProducto`.
@@ -50,15 +50,16 @@ Guardamos los cambios en el repositorio local con el nombre exacto de la prácti
 Comando ejecutado:
 `git commit -m "Practica venta con Store Procedure"`
 
-![Comando git commit](/img/Practica_Imgs/commit.png)
+![Comando git commit](/img/Practica_Imgs/git%20commit.png)
 
 ## 6. Control de Versiones: Merge a Main
 Pasamos todo el código de nuestra rama de trabajo hacia la rama principal (`main`). Primero cambiamos a main con `git checkout main` y luego fusionamos los cambios.
+![Comando git checkout](/img/Practica_Imgs/git%20checkout.png)
 
 Comando ejecutado:
 `git merge <practica-sp>`
 
-![Comando git merge](/img/Practica_Imgs/merge.png)
+![Comando git merge](/img/Practica_Imgs/git%20merge.png)
 
 ## 7. Control de Versiones: Push a GitHub
 Subimos la versión final al repositorio remoto para respaldar el proyecto.
@@ -66,4 +67,4 @@ Subimos la versión final al repositorio remoto para respaldar el proyecto.
 Comando ejecutado:
 `git push origin main`
 
-![Comando git push](/img/Practica_Imgs/push.png)
+![Comando git push](/img/Practica_Imgs/git%20push.png)
