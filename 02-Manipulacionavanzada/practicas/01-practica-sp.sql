@@ -57,6 +57,8 @@
 -- Hacer push a github
 
 
+
+
 CREATE DATABASE bdpracticas;
 GO
 
@@ -181,3 +183,5 @@ EXEC usp_agregar_venta
     @id_cliente = 'OCEAN',
     @id_producto = 78,
     @cantidad_vendida = 500;
+
+
